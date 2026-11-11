@@ -2,6 +2,8 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
+
+
 class Product extends CI_Controller
 {
 
@@ -20,15 +22,15 @@ class Product extends CI_Controller
         $password = $this->session->userdata('password');
         if ($password == "e10adc3949ba59abbe56e057f20f883e") {
             redirect('reset_password/input_password');
-        }else if($this->session->userdata('logged_in') && ($user_role == 'Upper' || $user_role == 'Finance' || $user_role == 'Admin'|| $user_role == 'Marketing')) {        
-        $data['title'] = 'Product';
-        $data['page_name'] = 'dashboard_product';
-        $data['role'] = $user_role;
-        $this->load->view('dashboard', $data);
+        } else if ($this->session->userdata('logged_in') && ($user_role == 'Upper' || $user_role == 'Finance' || $user_role == 'Admin' || $user_role == 'Marketing')) {
+            $data['title'] = 'Product';
+            $data['page_name'] = 'dashboard_product';
+            $data['role'] = $user_role;
+            $this->load->view('dashboard', $data);
         } else {
             redirect('auth');
         }
-        
+
     }
     public function get_product_images()
     {
@@ -52,23 +54,28 @@ class Product extends CI_Controller
             $row[] = '<small style="font-size:12px">' . $no . '</small>';
             // Menampilkan Gambar Produk
             $image_path = base_url('uploads/products/' . $item->foto);
-            $image_tag = $item->foto ? '<img src="' . $image_path . '" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;" onclick="showProductImages(' . $item->id_product . ')">' : '<small>No Image</small>';
+            $image_tag = $item->foto ? '<img src="' . $image_path . '" class="img-thumbnail"  object-fit: cover; cursor: pointer;" onclick="showProductImages(' . $item->id_product . ')">' : '<small>No Image</small>';
             $row[] = $image_tag;
 
 
             $row[] = '<small style="font-size:12px">' . htmlspecialchars($item->name_product) . '</small>';
             $row[] = '<small style="font-size:12px">' . htmlspecialchars($item->barcode_product) . '</small>';
             $row[] = '<small style="font-size:12px">' . htmlspecialchars($item->size_printing) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->profit) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->admin) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $item->category . '</small>';
             $row[] = '<small style="font-size:12px">' . $this->rupiah($item->selling_price) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_shirt) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_packing) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_printing) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_press) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_marketing) . '</small>';
-            $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_production) . '</small>';
+            $row[] = '<small style="font-size:12px">' . $item->category . '</small>';
+            if ($user_role == 'Upper') {
+
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->profit) . '</small>';
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->admin) . '</small>';
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_shirt) . '</small>';
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_packing) . '</small>';
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_printing) . '</small>';
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_press) . '</small>';
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_marketing) . '</small>';
+                $row[] = '<small style="font-size:12px">' . $this->rupiah($item->price_production) . '</small>';
+            } else {
+
+            }
             if ($user_role == "Admin" || $user_role == 'Upper') {
 
                 $row[] = '<div class="form-button-action"> 
@@ -91,7 +98,7 @@ class Product extends CI_Controller
                         <i class="fa fa-times"></i>
                         </button>
                         </div>';
-            }else{
+            } else {
 
             }
 
@@ -137,56 +144,68 @@ class Product extends CI_Controller
     }
     public function add_product()
     {
-        $user_data = array(
-            'name_product' => $this->input->post('nameProduct', TRUE),
-            'category' => $this->input->post('categoryProduct', TRUE),
-            'barcode_product' => $this->input->post('barcodeProduct', TRUE),
-            'size_printing' => $this->input->post('sizePrinting', TRUE),
-            'price_shirt' => $this->input->post('priceProduct', TRUE),
-            'price_packing' => $this->input->post('pricePacking', TRUE),
-            'price_printing' => $this->input->post('pricePrinting', TRUE),
-            'price_press' => $this->input->post('pricePress', TRUE),
-            'price_marketing' => $this->input->post('priceMarketing', TRUE),
-            'price_production' => $this->input->post('priceProduction', TRUE),
-            'persentase_margin' => $this->input->post('persentaseMargin', TRUE),
-            'selling_price' => $this->input->post('priceSelling', TRUE),
-            'persentase_admin' => $this->input->post('persentaseAdmin', TRUE),
-            'admin' => $this->input->post('priceAdmin', TRUE),
-            'stock' => $this->input->post('stockProduct', TRUE),
-            'profit' => $this->input->post('profit', TRUE),
-        );
-        // $user_data = array(
-        //     'name_product' => "heheh",
-        //     'category' => "heheh",
-        //     'barcode_product' => "heheh",
-        //     'size_printing' => "heheh",
-        //     'price_shirt' => "heheh",
+        $sizes = $this->input->post('sizePrinting', TRUE); // Ambil size dari input
+        $barcode = $this->input->post('qrProduct', TRUE);// Ambil size dari input
+        $sizeArray = explode(",", $sizes); // Ubah menjadi array berdasarkan koma
 
-        // );
+        $this->db->trans_start(); // Mulai transaksi
+        foreach ($sizeArray as $size) {
+            $user_data = array(
+                'name_product' => $this->input->post('nameProduct', TRUE),
+                'category' => $this->input->post('categoryProduct', TRUE),
+                'barcode_product' => $barcode."_".trim($size),
+                'size_printing' => trim($size), // Simpan 1 ukuran per data
+                'price_shirt' => $this->input->post('priceProduct', TRUE),
+                'price_packing' => $this->input->post('pricePacking', TRUE),
+                'price_printing' => $this->input->post('pricePrinting', TRUE),
+                'price_press' => $this->input->post('pricePress', TRUE),
+                'price_marketing' => $this->input->post('priceMarketing', TRUE),
+                'price_production' => $this->input->post('priceProduction', TRUE),
+                'persentase_margin' => $this->input->post('persentaseMargin', TRUE),
+                'selling_price' => $this->input->post('priceSelling', TRUE),
+                'persentase_admin' => $this->input->post('persentaseAdmin', TRUE),
+                'price_display' => $this->input->post('priceDisplay', TRUE),
+                'link_tokopedia' => $this->input->post('linkTokopedia', TRUE),
+                'link_shopee' => $this->input->post('linkShopee', TRUE),
+                'link_tiktok' => $this->input->post('linkTiktok', TRUE),
+                'admin' => $this->input->post('priceAdmin', TRUE),
+                'stock' => 0,
+                'profit' => $this->input->post('profit', TRUE),
+                'description' => $this->input->post('desc', TRUE),
+            );
 
-        $this->Product_model->_add_product($user_data);
-        $id_product = $this->Product_model->_add_product($user_data);
-        if ($id_product) {
-            $this->upload_images($id_product);
-            $this->session->set_flashdata('notify', [
-                'message' => 'Produk berhasil ditambahkan!',
-                'type' => 'success'
-            ]);
-        } else {
+            $id_product = $this->Product_model->_add_product($user_data);
+
+            if ($id_product) {
+                $this->upload_images($id_product);
+            }
+
+            
+        }
+        // var_dump( $user_data);            
+
+        $this->db->trans_complete(); // Selesaikan transaksi
+
+        if ($this->db->trans_status() === FALSE) {
             $this->session->set_flashdata('notify', [
                 'message' => 'Gagal menambahkan produk!',
                 'type' => 'danger'
+            ]);
+        } else {
+            $this->session->set_flashdata('notify', [
+                'message' => 'Produk berhasil ditambahkan!',
+                'type' => 'success'
             ]);
         }
 
         redirect("product");
     }
-    public function upload_images()
-    {
-        $id_product = 105; // Contoh id_product
+
+    public function upload_images($id_product)
+    {        
         $config['upload_path'] = './uploads/products/'; // Folder penyimpanan
         $config['allowed_types'] = 'jpg|jpeg|png|gif'; // Jenis file yang diperbolehkan
-        $config['max_size'] = 2048; // Maks 2MB
+        $config['max_size'] = 50048; // Maks 2MB
         $this->load->library('upload', $config);
 
         // Periksa apakah ada file yang diunggah

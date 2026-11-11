@@ -5,7 +5,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Edit User</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                  
                 </button>
             </div>
             <form action="<?= base_url('spending/edit_spending') ?>" method="POST" enctype="multipart/form-data">

@@ -5,8 +5,7 @@
             <div class="modal-header">
                 <h5 class="modal-title fw-bold" id="ModalLabel">Edit Product</h5>
                 <!-- Tombol Close -->
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">                    
                 </button>
             </div>
             <form action="<?= base_url('product/edit_product') ?>" method="POST" enctype="multipart/form-data">

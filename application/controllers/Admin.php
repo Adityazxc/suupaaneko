@@ -63,41 +63,31 @@ class Admin extends CI_Controller
         ]);
     }
     public function getSourceDataMultiple()
-{
-    $dateFrom = $this->input->post('dateFrom');
-    $dateThru = $this->input->post('dateThru');
-    $source_data = []; // Default empty array
+    {
+        $year = $this->input->post('year') ?? date('Y'); // Default tahun sekarang
+        $source_data = $this->Product_model->getSourceDataMultiple($year);
 
-    // Inisialisasi array Labels dan Counts
-    $Labels = [];
-    $Counts = [];
+        $dataBySource = [];
+        $allMonths = range(1, 12);
 
-    if ($dateFrom && $dateThru) {
-        // Ambil data dari model
-        $source_data = $this->Product_model->getSourceDataMultiple($dateFrom, $dateThru);
+        foreach ($source_data as $data) {
+            $source = $data['source'];
+            $month = (int) $data['month'];
+            $count = (int) $data['count'];
+
+            if (!isset($dataBySource[$source])) {
+                $dataBySource[$source] = array_fill(1, 12, 0); // Isi default 0 untuk semua bulan
+            }
+
+            $dataBySource[$source][$month] = $count;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'dataBySource' => $dataBySource,
+            'months' => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        ]);
     }
-
-    // Pemetaan label sumber data
-    $label_mapping = [
-        'S' => 'Shopee',
-        'T' => 'Tokopedia',
-        'TK' => 'Tiktok',
-        'O' => 'Offline'
-    ];
-
-    // Olah data untuk dikirimkan ke frontend
-    foreach ($source_data as $data) {
-        $Labels[] = $label_mapping[$data['source']] ?? $data['source']; // Gunakan label mapping
-        $Counts[] = (int) $data['count']; // Pastikan jumlah dalam format integer
-    }
-
-    // Kirim respons JSON ke frontend
-    echo json_encode([
-        'success' => true,
-        'Labels' => $Labels,
-        'Counts' => $Counts
-    ]);
-}
 
 
     public function upload()
@@ -197,47 +187,45 @@ class Admin extends CI_Controller
         echo json_encode($output);
     }
     public function summary_customer()
-    {
-        $dateFrom = $this->input->post('dateFrom');
-        $dateThru = $this->input->post('dateThru');
-        
-        
-        $this->db->select('
-        COUNT(*) as num_rows, 
-        SUM(amount) as sum_selling, 
-        SUM(sub_total) as gross_profit,
-        SUM(profit) as sum_profit,
-        SUM(IF(source = "T", sub_total, 0)) as sum_tokopedia,
-        SUM(IF(source = "S", sub_total, 0)) as sum_shopee,
-        SUM(IF(source = "TK", sub_total, 0)) as sum_Tiktok,
-        SUM(IF(source = "O", sub_total, 0)) as sum_offline,                
-        ');
+{
+    $dateFrom = $this->input->post('dateFrom');
+    $dateThru = $this->input->post('dateThru');
 
-        $this->db->from('selling');
+    $this->db->select('
+        COUNT(s.id_selling) as num_rows, 
+        SUM(s.amount) as sum_selling, 
+        SUM(s.sub_total) as gross_profit,
+        SUM(s.profit) as sum_profit,
+        SUM(IF(s.source = "T", s.sub_total, 0)) as sum_tokopedia,
+        SUM(IF(s.source = "S", s.sub_total, 0)) as sum_shopee,
+        SUM(IF(s.source = "TK", s.sub_total, 0)) as sum_tiktok,
+        SUM(IF(s.source = "O", s.sub_total, 0)) as sum_offline,
+        SUM(sp.nominal_spending) as spending
+    ');
 
-        
+    $this->db->from('selling s');
+    $this->db->join('spending sp', 'DATE(s.date_selling) = DATE(sp.create_date)', 'left');
 
-        if ($dateFrom && $dateThru) {
-            $this->db->where('DATE(date_selling) >=', $dateFrom);
-            $this->db->where('DATE(date_selling) <=', $dateThru);
-        }
-
-
-        $query = $this->db->get();
-        $result = $query->row();
-
-        echo json_encode([
-            'sum_selling' => htmlspecialchars($result->sum_selling),
-            'sum_profit' => htmlspecialchars($result->sum_profit),
-            'sum_tokopedia' => htmlspecialchars($result->sum_tokopedia),
-            'sum_shopee' => htmlspecialchars($result->sum_shopee),
-            'sum_Tiktok' => htmlspecialchars($result->sum_Tiktok),
-            'sum_offline' => htmlspecialchars($result->sum_offline),
-            'gross_profit' => htmlspecialchars($result->gross_profit),
-
-        ]);
-
+    if ($dateFrom && $dateThru) {
+        $this->db->where('DATE(s.date_selling) >=', $dateFrom);
+        $this->db->where('DATE(s.date_selling) <=', $dateThru);
     }
+
+    $query = $this->db->get();
+    $result = $query->row();
+
+    echo json_encode([
+        'sum_selling' => htmlspecialchars($result->sum_selling ?? 0),
+        'sum_profit' => htmlspecialchars($result->sum_profit ?? 0),
+        'sum_tokopedia' => htmlspecialchars($result->sum_tokopedia ?? 0),
+        'sum_shopee' => htmlspecialchars($result->sum_shopee ?? 0),
+        'sum_tiktok' => htmlspecialchars($result->sum_tiktok ?? 0),
+        'sum_offline' => htmlspecialchars($result->sum_offline ?? 0),
+        'gross_profit' => htmlspecialchars($result->gross_profit??0),
+        'spending' => htmlspecialchars($result->spending ?? 0),
+    ]);
+}
+
     public function reset_password()
     {
         $customerId = $this->input->post('customerId', TRUE);

@@ -4,8 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Add Stock Product</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">                    
                 </button>
             </div>
             <form action="<?= base_url('stock/add_stock') ?>" method="POST" enctype="multipart/form-data">

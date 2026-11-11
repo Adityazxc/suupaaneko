@@ -4,17 +4,18 @@
             <div class="me-4">
                 <h2 class="card-title text-primary mb-0 ">Product</h2>
             </div>
-
+           
         </div>
     </div>
     <div class="card-body p-4">
-        <div class="d-flex">
-            <button class="btn btn-primary btn-round ms-auto mb-3" data-bs-toggle="modal" data-bs-target="#addRowModal">
-                <i class="fa fa-plus"></i>
-                Add Product
-            </button>
-        </div>
-<?php echo $role;?>
+        <?php if ($role == "Upper"): ?>
+            <div class="d-flex">
+                <button class="btn btn-primary btn-round ms-auto mb-3" data-bs-toggle="modal" data-bs-target="#addRowModal">
+                    <i class="fa fa-plus"></i>
+                    Add Product
+                </button>
+            </div>
+        <?php endif; ?>
         <div class="table-responsive">
             <table id="table_product" class="display table table-striped table-hover" width="100%" cellspacing="0">
                 <thead>
@@ -24,19 +25,22 @@
                         <th>Name Product</th>
                         <th>Barcode Product</th>
                         <th>Size Printing</th>
-                        <th>Profit</th>
-                        <th>Price Admin</th>
                         <th>Category</th>
-                        <th>Price Selling</th>
-                        <th>Price Product</th>
-                        <th>Price Packing</th>
-                        <th>Price Printing</th>
-                        <th>Price Press</th>
-                        <th>Price Marketing</th>
-                        <th>Total Production</th>
-                        <?php if($role == "Admin" || $role = "Upper") { ?>
+                        <th>Price Selling</th>˜
+                        <?php if ($role == "Upper"): ?>
+                            <th>Profit</th>
+                            <th>Price Admin</th>
+                            <th>Price Product</th>
+                            <th>Price Packing</th>
+                            <th>Price Printing</th>
+                            <th>Price Press</th>
+                            <th>Price Marketing</th>
+                            <th>Total Production</th>
+                        <?php endif; ?>
+                        <?php if ($role == "Admin" || $role == "Upper"): ?>
                             <th>Action</th>
-                        <?php }; ?>
+                        <?php else: ?>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,8 +54,8 @@
 <!-- Modal Preview Gambar -->
 <div class="modal fade" id="productImageModal" tabindex="-1" aria-labelledby="productImageModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-transparent border-0">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content ">
             <div class="modal-body p-0 text-center position-relative">
                 <!-- Tombol Close di Atas Gambar -->
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-light p-2 rounded-circle"
@@ -78,6 +82,10 @@
 <!-- End Modal Preview Gambar -->
 
 <script>
+    // function showProductImages(id_product) {
+    //    console.log(id_product);
+    //    console.log("hehe");
+    // }
     function showProductImages(id_product) {
         $.ajax({
             url: "<?= base_url('product/get_product_images'); ?>",
@@ -125,10 +133,9 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="ModalLabel">Hapus Product</h5>
+                <h5 class="modal-title fw-bold" id="ModalLabel">Assign Ticket</h5>
                 <!-- Tombol Close -->
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">                   
                 </button>
             </div>
             <form action="<?= base_url('product/delete_product') ?>" method="POST" enctype="multipart/form-data">
@@ -208,11 +215,11 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0, 9],
+                    "targets": [0],
                     "orderable": false
                 },
                 {
-                    "targets": [0, 9],
+                    "targets": [0],
                     "className": 'text-center'
                 },
             ],
@@ -223,8 +230,7 @@
             }
         });
     });
-
-
+   
 
 </script>
 

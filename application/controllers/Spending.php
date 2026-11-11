@@ -26,7 +26,7 @@ class Spending extends CI_Controller
         $password = $this->session->userdata('password');
         if ($password == "e10adc3949ba59abbe56e057f20f883e") {
             redirect('reset_password/input_password');
-        } else if ($this->session->userdata('logged_in') && ($user_role == 'Upper')) {
+        } else if ($this->session->userdata('logged_in') && ($user_role == 'Upper' || $user_role=='Finance')) {
             $data['title'] = 'Dashboard User';
             $data['page_name'] = 'list_spending';
             $data['role'] = $user_role;

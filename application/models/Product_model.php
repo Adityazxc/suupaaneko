@@ -134,17 +134,79 @@ class Product_model extends CI_Model
         return $query->result_array();
     }
 
-    public function getSourceDataMultiple($dateFrom, $dateThru)
+    public function getSourceDataMultiple($year)
     {
-        $this->db->select('source, SUM(amount) as count');
+        $this->db->select('source, MONTH(date_selling) as month, SUM(amount) as count');
         $this->db->from('selling');
-        $this->db->where('DATE(date_selling) >=', $dateFrom);
-        $this->db->where('DATE(date_selling) <=', $dateThru);
-        $this->db->group_by('source');
+        $this->db->where('YEAR(date_selling)', $year); // Filter berdasarkan tahun
+        $this->db->group_by(['MONTH(date_selling)', 'source']);
+        $this->db->order_by('month', 'ASC');
         $query = $this->db->get();
 
         return $query->result_array(); // Kembalikan hasil dalam bentuk array
     }
+
+    public function getGroupedProducts()
+    {
+        // Menggunakan query builder untuk memilih kolom yang dibutuhkan
+        $this->db->select('
+            p.*,  
+            GROUP_CONCAT(DISTINCT p.size_printing ORDER BY p.size_printing ASC SEPARATOR ", ") AS sizes, 
+            (SELECT pp.foto FROM photo_product pp WHERE pp.id_product = p.id_product LIMIT 1) AS foto
+        ');
+        
+        // Menentukan tabel utama yang digunakan
+        $this->db->from('products p');
+        
+        // Menambahkan GROUP BY berdasarkan nama produk dan harga jual
+        $this->db->group_by(['p.name_product', 'p.selling_price']);
+        
+        // Menjalankan query dan mengembalikan hasilnya
+        $query = $this->db->get();
+        
+        return $query->result();
+    }
+    public function getGroupedBlog()
+    {
+        // Menggunakan query builder untuk memilih kolom yang dibutuhkan
+        $this->db->select('
+            b.*,             
+        ');
+        
+        // Menentukan tabel utama yang digunakan
+        $this->db->from('blog b');
+           
+        // Menjalankan query dan mengembalikan hasilnya
+        $query = $this->db->get();
+        
+        return $query->result();
+    }
+    
+    public function getProductById($id_product)
+    {
+        $query = $this->db->query("
+            SELECT 
+                p.*, 
+                GROUP_CONCAT(DISTINCT pp.foto ORDER BY pp.foto ASC) AS photos,
+                GROUP_CONCAT(DISTINCT p.size_printing ORDER BY p.size_printing ASC) AS sizes
+            FROM products p
+            LEFT JOIN photo_product pp ON p.id_product = pp.id_product
+            WHERE p.id_product = ?
+            GROUP BY p.name_product, p.selling_price, p.description, p.category
+        ", [$id_product]);
+    
+        $result = $query->row();
+    
+        if ($result) {
+            $result->photos = explode(',', $result->photos);
+            $result->sizes = explode(',', $result->sizes);
+        }
+    
+        return $result;
+    }
+    
+    
+
 
 
 

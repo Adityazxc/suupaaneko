@@ -3,8 +3,8 @@
 class Stock_model extends CI_Model
 {
 
-    var $customer_column_order = array(null,'name_product','barcode_product','size_printing','price_shirt','price_packing','price_printing','price_press','price_press'); //set column field database for datatable orderable
-    var $customer_column_search = array('name_product','barcode_product','size_printing','price_shirt','price_packing','price_printing','price_press','price_press'); //set column field database for datatable searchable
+    var $customer_column_order = array(null,'name_product','barcode_product','size_printing','price_shirt','price_packing','price_printing','price_press','price_press','stock'); //set column field database for datatable orderable
+    var $customer_column_search = array('name_product','barcode_product','size_printing','price_shirt','price_packing','price_printing','price_press','price_press','stock'); //set column field database for datatable searchable
 
 
 
@@ -12,7 +12,7 @@ class Stock_model extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('products');
-        $this->db->order_by('stock','ASC');
+        // $this->db->order_by('stock','ASC');
         
 
 

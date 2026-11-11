@@ -101,6 +101,8 @@ class Selling extends CI_Controller
                 'priceSelling' => $result->selling_price,
                 'subTotal' => $result->name_product,
                 'profit' => $result->profit,
+                'sizeSellingProduct' => $result->size_printing,
+                'stockSelling' => $result->stock,
                 'source' => 'Shopee',
             ];
             // var_dump($response);
@@ -223,9 +225,6 @@ class Selling extends CI_Controller
         // var_dump($user_data);
         redirect("selling");
     }
-
-
-
 
     public function get_csrf()
     {

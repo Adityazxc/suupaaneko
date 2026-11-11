@@ -22,11 +22,13 @@
     </div>
     <div class="card-body p-4">
         <div class="d-flex">
+            <?php if ($role == "Upper"):?>
             <button class="btn btn-primary btn-round ms-auto mb-3" data-bs-toggle="modal"
                 data-bs-target="#addSellingModal">
                 <i class="fa fa-plus"></i>
                 Add Selling
             </button>
+            <?php endif;?>
         </div>
 
         <div class="table-responsive">

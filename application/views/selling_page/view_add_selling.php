@@ -4,8 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Add Selling</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">                  
                 </button>
             </div>
             <form action="<?= base_url('selling/add_selling') ?>" method="POST" enctype="multipart/form-data">
@@ -39,6 +38,20 @@
                                 placeholder="Insert Name Product" autocomplete="off" required readonly>
                         </div>
                     </div>
+                    <div class="col-sm-12">
+                        <div class="form-group form-group-default">
+                            <label>Size Product</label>
+                            <input id="sizeSellingProduct" name="sizeSellingProduct" type="text" class="form-control"
+                                placeholder="Size Product" autocomplete="off" required readonly>
+                        </div>
+                    </div>                  
+                    <div class="col-sm-12">
+                        <div class="form-group form-group-default">
+                            <label>Sisa Stock</label>
+                            <input id="stockSelling" name="stockSelling" type="number" class="form-control"
+                                 autocomplete="off" required value="0" readonly>
+                        </div>
+                    </div>                  
                     <div class="col-sm-12">
                         <div class="form-group form-group-default">
                             <label>Amount</label>
@@ -148,6 +161,8 @@
                 $('#amount').val(response.amount);
                 $('#priceSellingProduct').val(response.priceSelling);
                 $('#subTotalSelling').val(response.priceSelling);
+                $('#sizeSellingProduct').val(response.sizeSellingProduct);
+                $('#stockSelling').val(response.stockSelling);
                 $('#Profit').val(response.profit);
                 toggleSubmitButton();
 

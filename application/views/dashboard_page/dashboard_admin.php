@@ -98,6 +98,25 @@
             </div>
         </div>
     </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-5">
+                        <div class="icon-big text-center">
+                            <i class="bi bi-shop"></i>
+                        </div>
+                    </div>
+                    <div class="col-7 col-stats">
+                        <div class="numbers">
+                            <p class="card-category">Spending</p>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800 spending"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Tiktok -->
     <div class="col-sm-6 col-md-3">
         <div class="card card-stats card-round">
@@ -177,7 +196,22 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <div class="card-title">Multiple Line Chart</div>
+                <div class="row">
+
+                    <div class="col">
+                        <div class="card-title">Multiple Line Chart</div>
+                    </div>
+                    <div class="col">
+                        <select id="yearFilter" class="form-control">
+                            <?php
+                            $currentYear = date("Y");
+                            for ($i = $currentYear; $i >= 2020; $i--) {
+                                echo "<option value='{$i}'>{$i}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <div class="chart-container">
@@ -218,14 +252,16 @@
             type: "POST",
             data: formData,
             success: (r) => {
-                $('.totalSelling').text(r.sum_selling);
-                $('.totalProfit').text(formatRupiah(r.sum_profit));
-                $('.profiTokopedia').text(formatRupiah(r.sum_tokopedia));
-                $('.profiShopee').text(formatRupiah(r.sum_shopee));
-                $('.profiTiktok').text(formatRupiah(r.sum_Tiktok));
-                $('.profitOffline').text(formatRupiah(r.sum_offline));
-                $('.grossProfit').text(formatRupiah(r.gross_profit));
+                $('.totalSelling').text(r.sum_selling || 0);
+                $('.totalProfit').text(formatRupiah(r.sum_profit || 0));
+                $('.profiTokopedia').text(formatRupiah(r.sum_tokopedia || 0));
+                $('.profiShopee').text(formatRupiah(r.sum_shopee || 0));
+                $('.profiTiktok').text(formatRupiah(r.sum_Tiktok || 0));
+                $('.profitOffline').text(formatRupiah(r.sum_offline || 0));
+                $('.grossProfit').text(formatRupiah(r.gross_profit || 0));  // ⬅️ Validasi disini                
+                $('.spending').text(formatRupiah(r.spending || 0));
             }
+
         });
     }
 
@@ -244,34 +280,28 @@
     // <canvas id="multipleLineChart"></canvas>
 
     function lineMultipleChart() {
-        var formData = {
-            dateFrom: $('[name="dateFrom"]').val(),
-            dateThru: $('[name="dateThru"]').val()
-        };
+        var selectedYear = $('#yearFilter').val() || new Date().getFullYear();
+
+        var formData = { year: selectedYear };
 
         $.ajax({
-            url: "<?= base_url('admin/getSourceDataMultiple') ?>", // URL endpoint
+            url: "<?= base_url('admin/getSourceDataMultiple') ?>",
             type: "POST",
             data: formData,
             dataType: "JSON",
             success: function (response) {
                 if (response.success) {
-                    var labels = response.Labels || [];
-                    var counts = response.Counts || [];
-                    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    var dataBySource = response.dataBySource || {};
+                    var months = response.months || [];
+
                     var datasets = [];
-                    var colors = ["#1d7af3", "#f0582c", "#5fbc55", "#211f20"];
+                    var colors = ["#EE4D2D", "#42B549", "#000000", "#9E9E9E", "#1428A0", "#FFC107"];
+                    var sources = Object.keys(dataBySource);
 
-
-                    labels.forEach(function (label, index) {
-                        var monthlyData = Array(12).fill(0);
-                        if (counts[index]) {
-                            monthlyData[index % 12] = counts[index];
-                        }
-
+                    sources.forEach(function (source, index) {
                         datasets.push({
-                            label: label,
-                            data: monthlyData,
+                            label: source,
+                            data: Object.values(dataBySource[source]),
                             borderColor: colors[index % colors.length],
                             backgroundColor: 'transparent',
                             pointBorderWidth: 2,
@@ -279,24 +309,19 @@
                             pointHoverBorderWidth: 1,
                             pointRadius: 4,
                             borderWidth: 2,
-                            fill: true,
+                            fill: false,
                             tension: 0.3
                         });
                     });
 
-                    // Hapus chart lama jika ada dan valid
                     if (window.multipleLineChart && typeof window.multipleLineChart.destroy === 'function') {
                         window.multipleLineChart.destroy();
                     }
 
-                    // Buat chart baru
                     var ctx = document.getElementById('multipleLineChart').getContext('2d');
                     window.multipleLineChart = new Chart(ctx, {
                         type: 'line',
-                        data: {
-                            labels: months,
-                            datasets: datasets
-                        },
+                        data: { labels: months, datasets: datasets },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
@@ -317,29 +342,16 @@
                             },
                             scales: {
                                 x: {
-                                    title: {
-                                        display: true,
-                                        text: "Bulan"
-                                    },
-                                    grid: {
-                                        drawOnChartArea: false
-                                    }
+                                    title: { display: true, text: "Bulan" },
+                                    grid: { drawOnChartArea: false }
                                 },
                                 y: {
-                                    title: {
-                                        display: true,
-                                        text: "Jumlah Penjualan"
-                                    },
+                                    title: { display: true, text: "Jumlah Penjualan" },
                                     beginAtZero: true
                                 }
                             },
                             layout: {
-                                padding: {
-                                    left: 20,
-                                    right: 20,
-                                    top: 20,
-                                    bottom: 20
-                                }
+                                padding: { left: 20, right: 20, top: 20, bottom: 20 }
                             }
                         }
                     });
@@ -352,7 +364,6 @@
             }
         });
     }
-
 
 
     function loadSourcePieChart() {
@@ -444,6 +455,10 @@
         lineMultipleChart();
         $('#dateFrom, #dateThru').on('change', function () {
             loadSourcePieChart(); // Muat ulang saat filter berubah
+            lineMultipleChart();
+        });
+
+        $('#yearFilter').on('change', function () {
             lineMultipleChart();
         });
     });

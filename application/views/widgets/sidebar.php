@@ -79,6 +79,13 @@
 						</a>
 					</li>
 					<li
+						class="nav-item <?php echo ($this->uri->segment(1) == 'Marketing' && $this->uri->segment(2) == '') ? 'active' : ''; ?>">
+						<a href="<?php echo base_url('Marketing'); ?>">
+							<i class="fas fa-bullhorn"></i>
+							<span>Marketing</span>
+						</a>
+					</li>
+					<li
 						class="nav-item <?php echo ($this->uri->segment(1) == 'users' && $this->uri->segment(2) == '') ? 'active' : ''; ?>">
 						<a href="<?php echo base_url('users'); ?>">
 							<i class="fa fa-user"></i>
@@ -197,6 +204,13 @@
 						<a href="<?php echo base_url('selling'); ?>">
 							<i class="fa fa-shopping-cart"></i>
 							<span>Order</span>
+						</a>
+					</li>
+					<li
+						class="nav-item <?php echo ($this->uri->segment(1) == 'spending' && $this->uri->segment(2) == '') ? 'active' : ''; ?>">
+						<a href="<?php echo base_url('spending'); ?>">
+							<i class="bi bi-cash"></i>
+							<span>Spending</span>
 						</a>
 					</li>
 					<li
